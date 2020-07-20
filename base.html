@@ -1,0 +1,334 @@
+<html>
+<head>
+<style>
+@font-face {
+font-family:itim;
+src: url(Itim-Regular.ttf);
+}
+nav a,li{
+font-size: 15px;
+color: white !important;
+font-family: Arial, Helvetica, sans-serif;
+font-weight: bold !important;
+}
+a:hover {
+background-color: dimgray !important;
+}
+.navbar-nav li:hover > ul.dropdown-menu {
+display: block;
+background-color:black !important;
+}
+.dropdown-submenu {
+position:relative;
+}
+.dropdown-submenu>.dropdown-menu {
+top: 0;
+left: 100%;
+margin-top:-6px;
+}
+.dropdown-menu{
+background-color: black !important;
+margin-top: 0px !important;
+}
+
+.dropdown-menu > li > a:hover:after {
+text-decoration: underline;
+transform: rotate(-90deg);
+}
+#textarea1::-webkit-scrollbar {
+width: 10px;
+}
+#textarea1::-webkit-scrollbar-track {
+background: white;
+}
+#textarea1::-webkit-scrollbar-thumb {
+background: darkgray ; 
+}
+#fusha::placeholder{
+font-weight: bold !important;
+font-size: 15px;
+}
+</style>
+</head>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=700px, initial-scale=0.55 , maximum-scale=1">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+
+
+<script>
+$(document).keypress(function(event){
+var keycode = (event.keyCode ? event.keyCode : event.which);
+if(keycode == '13'){
+$("#konverto").trigger("click");
+}
+});
+
+var message;
+
+$(document).ready(function(){
+message=$("#message").detach();
+$('body').show();
+$("#konverto").click(function(){
+$("#message").detach();
+$("#textarea1").text("");
+
+if($('#fusha').val().length>0&&$('#tipi1').val()!="0"&&$('#tipi2').val()!="0"){
+if($('#fusha').val().length>30){
+$("#mainsubsub").prepend(message);$("#message").text("Error!");
+}
+else{
+var nr=$('#fusha').val().toLowerCase();
+if($('#tipi1').val()=="2"){
+var bashkesia='01';
+}
+else if($('#tipi1').val()=="3"){
+var bashkesia='012';
+}
+else if($('#tipi1').val()=="4"){
+var bashkesia='0123';
+}
+
+else if($('#tipi1').val()=="5"){
+var bashkesia='01234';
+}
+
+else if($('#tipi1').val()=="6"){
+var bashkesia='012345';
+}
+else if($('#tipi1').val()=="7"){
+var bashkesia='0123456';
+}
+
+else if($('#tipi1').val()=="8"){
+var bashkesia='01234567';
+}
+else if($('#tipi1').val()=="9"){
+var bashkesia='012345678';
+}
+else if($('#tipi1').val()=="10"){
+var bashkesia='0123456789';
+}
+else if($('#tipi1').val()=="16"){
+var bashkesia='0123456789abcdef';
+}
+var bool=false;
+for(var i=0;i<nr.length;i++){
+if (bashkesia.indexOf(nr.charAt(i))==-1) {
+$("#mainsubsub").prepend(message);$("#message").text("Error!");
+bool=true;
+break;
+}
+}
+
+if(!bool){
+var sum=0;
+if($('#tipi1').val()!="16"){
+for(var i=0;i<nr.length;i++){
+
+sum+=parseInt(nr.charAt(i))*Math.pow(parseInt($('#tipi1').val()),nr.length-i-1);
+} 
+
+if($('#tipi1').val()=="10"){
+var decimalnum=parseInt(nr);	
+}
+else{
+var decimalnum=sum;
+}
+}
+else if($('#tipi1').val()=="16"){
+
+for(var i=nr.length-1;i>=0;i--){
+var karakteri=nr.charAt(i);
+if(karakteri=="a"){
+karakteri="10";}
+else if(karakteri=="b"){
+karakteri="11";
+}else if(karakteri=="c"){
+karakteri="12";
+}else if(karakteri=="d"){
+karakteri="13";
+}else if(karakteri=="e"){
+karakteri="14";
+}else if(karakteri=="f"){
+karakteri="15";
+} 
+sum+=parseInt(karakteri)*Math.pow(16,nr.length-i-1);
+} 
+var decimalnum=sum;
+}
+
+if($('#tipi2').val()!="16"){
+
+var sistemi1=parseInt($('#tipi1').val());
+var sistemi2=parseInt($('#tipi2').val());
+var fuqiafillestare=0;    
+while(Math.pow(sistemi2,fuqiafillestare)<decimalnum){
+fuqiafillestare++;
+}
+
+var str="";
+while(Math.pow(sistemi2,fuqiafillestare)>decimalnum){
+fuqiafillestare-=1;
+}
+
+while(fuqiafillestare>=0){
+var heres=parseInt(decimalnum/Math.pow(sistemi2,fuqiafillestare));
+str+=heres.toString();
+var mbetje=decimalnum%Math.pow(sistemi2,fuqiafillestare);
+decimalnum=mbetje;
+fuqiafillestare--;
+
+}
+
+$("#textarea1").text(str);
+}
+else if($('#tipi2').val()=="16"){
+var rez=999;
+var hexstring="";
+while(rez!=0){
+rez=parseInt(decimalnum/16);
+var mbetja=(decimalnum%16).toString();
+if(mbetja=="10"){
+mbetja="a";}
+else if(mbetja=="11"){
+mbetja="b";
+}else if(mbetja=="12"){
+mbetja="c";
+}else if(mbetja=="13"){
+mbetja="d";
+}else if(mbetja=="14"){
+mbetja="e";
+}else if(mbetja=="15"){
+mbetja="f";
+}  
+hexstring+=mbetja;
+decimalnum=rez;
+
+}	
+var toarr = hexstring.split("");
+var reverseArray = toarr.reverse();
+var joinArray = reverseArray.join("");
+$("#textarea1").text(joinArray);	
+}
+$("#textarea1").scrollTop($("#textarea1")[0].scrollHeight);
+
+}}}
+});
+});
+</script>
+<body style="line-height: 1 !important;overflow-x: hidden;touch-action: manipulation;background-color:#b3b3b3;color: black;width: 100vw;
+display: none;">
+<nav class="navbar navbar-expand navbar-light bg-light" id="nav" style="background: black !important;
+width:100%;position: fixed;top:0;z-index: 99;">
+<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" 
+aria-expanded="false" aria-label="Toggle navigation" style="background: lightgrey;">
+<span class="navbar-toggler-icon"></span>
+</button>
+
+<div class="collapse navbar-collapse" id="navbarNavDropdown">
+<ul class="navbar-nav">
+<li class="nav-item active">
+<a class="nav-link" href="index.html">Home <span class="sr-only">(current)</span></a>
+</li>
+
+<li class="nav-item dropdown">
+<a class="nav-link dropdown-toggle" href="http://example.com" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" 
+aria-expanded="false">Numeral systems</a>
+<ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+<li><a class="dropdown-item" href="base.html">Number bases</a></li>
+<li><a class="dropdown-item" href="codes.html">Binary codes</a></li>
+</ul>
+</li>
+
+<li class="nav-item dropdown">
+<a class="nav-link dropdown-toggle" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" 
+aria-expanded="false">Combinational logic</a>
+<ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+<li class="dropdown-submenu"><a class="dropdown-item dropdown-toggle">Karnaugh map</a>
+<ul class="dropdown-menu">
+<li><a class="dropdown-item" href="4var.html">4 variables</a></li>
+<li><a class="dropdown-item" href="5var.html">5 variables</a></li>
+<li><a class="dropdown-item" href="6var.html">6 variables</a></li>
+</ul>
+</li>
+<li><a class="dropdown-item" href="McCluskey.html">Tabular method</a></li>
+</ul>
+</li>
+
+
+<li class="nav-item dropdown">
+<a class="nav-link dropdown-toggle" href="http://example.com" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" 
+aria-expanded="false">Boolean algebra</a>
+<ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+<li><a class="dropdown-item" href="booleanexpression.html">Boolean expressions</a></li>
+<li><a class="dropdown-item" href="expressioncheck.html">Compare functions</a></li>
+</ul>
+</li>
+
+</ul>
+</div>
+</nav>
+
+
+<div id="main" style="display:flex;justify-content:center;align-items:center;">
+<div id="mainsub" style="background: #f5f5f5;border-radius: 20px;width: 600px;height:420px;display: flex;justify-content: center;
+;position: relative;margin-top: 100px;">
+<div id="mainsubsub" style="width: 80%;height: 100%;display: flex;flex-direction: column;justify-content: center;">
+
+<div id="message" style="position:absolute;top:2px;left:calc(50% - 30px);height:20px;background:lightgrey;width:60px;display: flex;
+justify-content:center;align-items:center;letter-spacing:2px;font-style:italic;font-weight:bold;box-shadow:3px 3px 3px dimgray;border-radius:3px;">
+</div>
+
+<input type="text" class="form-control" id="fusha" autocomplete="off" placeholder="Number" style="width:100%;height: 60px;
+letter-spacing: 1px;box-shadow: 3px 3px 10px dimgrey;font-weight: bold;border: 1px solid;">
+
+
+<div style="margin-top: 30px;display:flex;align-items: center;">
+<select id="tipi1" style="height:40px;width:180px;background:black;color:white;font-size: 18px;border-radius: 5px;font-family:Itim;">
+<option hidden value="0" >From</option>
+<option value="2">Binary</option>
+<option value="3">Base3</option>
+<option value="4">Base4</option>
+<option value="5">Base5</option>
+<option value="6">Base6</option>
+<option value="7">Base7</option>
+<option value="8">Base8</option>
+<option value="9">Base9</option>
+<option value="10">Decimal</option>
+<option value="16">Hexadecimal</option>
+</select>
+
+<select id="tipi2" style="height:40px;width:180px;background:black;color:white;font-size: 18px;border-radius: 5px;font-family:Itim;
+margin-left:2px;">
+<option hidden value="0">To</option>
+<option value="2">Binary</option>
+<option value="3">Base3</option>
+<option value="4">Base4</option>
+<option value="5">Base5</option>
+<option value="6">Base6</option>
+<option value="7">Base7</option>
+<option value="8">Base8</option>
+<option value="9">Base9</option>
+<option value="10">Decimal</option>
+<option value="16">Hexadecimal</option>
+</select>
+
+<button type="button" id="konverto" class="btn btn-secondary" style="font-family:monospace;font-weight:bold;font-size:13px;
+background:black;margin-left: 10px;">Submit</button>     
+</div>
+
+
+<textarea id="textarea1"  readonly  style="margin-top:30px;letter-spacing: 1px;font-size:18px;font-weight:bold;height:150px;
+background: black;color: white;width:100%;border-radius: 5px;box-shadow: 3px 5px 5px dimgrey;line-height: 1.5;
+font-family:Times New Roman;"></textarea>
+
+</div>
+</div>
+</div>
+
+</body>
+</html>

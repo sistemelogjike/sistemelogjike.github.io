@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+@font-face {
+font-family:itim;
+src: url(Itim-Regular.ttf);
+}
+td{
+border: 1px solid black;
+border-collapse: collapse;
+font-weight: bold;
+}
+#tg td,#equations td{
+height: 25px;
+white-space: nowrap !important;
+}
+table{
+font-family:Times New Roman;
+}
+button{
+font-family:monospace !important;
+}
+
+nav a,li{
+font-size: 15px;
+color: white !important;
+font-family: Arial, Helvetica, sans-serif;
+font-weight: bold !important;
+}
+a:hover {
+background-color: dimgray !important;
+}
+.navbar-nav li:hover > ul.dropdown-menu {
+display: block;
+background-color:black !important;
+}
+.dropdown-submenu {
+position:relative;
+}
+.dropdown-submenu>.dropdown-menu {
+top: 0;
+left: 100%;
+margin-top:-6px;
+}
+.dropdown-menu{
+background-color: black !important;
+margin-top: 0px !important;
+}
+
+.dropdown-menu > li > a:hover:after {
+text-decoration: underline;
+transform: rotate(-90deg);
+}
+
+#fusha::placeholder { 
+font-size: 15px !important;
+font-weight: bold !important;
+}
+
+
+</style>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=700px, initial-scale=0.5 , maximum-scale=1">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore-min.js"></script>
+<script type="text/javascript" src="functions.js"></script> 
+<script type="text/javascript" src="circuit.js"></script> 
+
+
+<script>
+function countones(a){
+var c=0;
+for(var i=0;i<a.length;i++){
+if(a.charAt(i)==='1'){
+c++;
+}
+}
+return c;
+}
+
+function tobin(nr){
+var str="";
+if(nr=="0"){
+return "0";
+}
+else{
+while(nr!=0){
+str+=(nr%2).toString();
+nr=parseInt(nr/2);
+}
+var toarr = str.split("");
+var reverseArray = toarr.reverse();
+var revstr = reverseArray.join("");	
+return revstr;
+}
+}
+
+function sortarr(numbers){
+numbers.sort(function(a, b){
+return a - b;
+});
+return numbers;
+}
+
+
+$(document).keypress(function(event){
+var keycode = (event.keyCode ? event.keyCode : event.which);
+if(keycode == '13'){
+$("#shto").trigger("click");
+}
+});
+
+var arr=[],type=[],mintstring="",dontstring="",allnums="",results,circuit,newarr=[],resarray=[],message;
+var letters=["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"];
+var complement=["A̅","B̅","C̅","D̅","E̅","F̅","G̅","H̅","I̅","J̅","K̅","L̅","M̅","N̅","O̅","P̅","Q̅","R̅","S̅","T̅","U̅","V̅","W̅","X̅","Y̅","Z̅"];
+
+$(document).ready(function(){
+circuit=$("#circuit").detach();
+results=$("#results").detach();
+message=$("#message").detach();
+$('body').show();
+
+$("#shto,#shto2").click(function(){
+var bashkesia="0123456789,";
+$("#message").detach();
+var newstr=$('#fusha').val().trim();
+var bool=false;	  
+for(var i=0;i<newstr.length;i++){
+if (bashkesia.toLowerCase().indexOf(newstr.toLowerCase().charAt(i))==-1) {
+$("#mainsubsub").prepend(message);$("#message").text("Error!");
+bool=true;
+break;
+}  
+}
+if(newstr.charAt(0)==","||newstr.charAt(newstr.length-1)==","||newstr.indexOf(",,")!=-1){
+$("#mainsubsub").prepend(message);$("#message").text("Error!");
+bool=true;
+}
+if(newstr==""){
+bool=true;
+}
+if(!bool){
+if(_.max(newstr.split(",").map(Number))>1023){
+$("#mainsubsub").prepend(message);$("#message").text("Error!");
+bool=true;
+}
+}
+if(!bool){
+arr=[];type=[];
+$("#textarea1").text("");
+var tmp=_.uniq(newstr.split(",").map(Number).map(String));
+for(var i=0;i<allnums.split(",").length;i++){
+tmp=tmp.filter(function(value, index, thearr){
+return value!=allnums.split(",")[i];
+});
+}
+if(tmp.length>64){
+tmp=tmp.slice(0,64);
+}
+newstr=tmp.join(",");
+if(newstr!=""){
+if(allnums.substring(0,allnums.length-1).split(",").length<64){
+allnums+=newstr+",";
+}
+else{
+newstr="";
+}
+}
+
+if($(this).attr('id')==='shto'){
+if(newstr!=""){
+mintstring=mintstring+newstr+",";
+mintstring=sortarr(mintstring.substring(0,mintstring.length-1).split(",")).join(",")+",";
+}
+$("#textarea1").text("Σm(" +mintstring+ ")+" + "Σd(" +dontstring+ ")"); 
+}
+else{
+if(newstr!=""){
+dontstring=dontstring+newstr+",";
+dontstring=sortarr(dontstring.substring(0,dontstring.length-1).split(",")).join(",")+",";
+}
+$("#textarea1").text("Σm(" +mintstring+ ")+" + "Σd(" +dontstring+ ")");  
+}
+}
+});
+
+
+$("#thjeshto").click(function(){
+arr=[];type=[];allnums="";newarr=[];resarray=[];
+if(mintstring.substring(0,mintstring.length-1)!=""){
+arr=arr.concat(mintstring.substring(0,mintstring.length-1).split(","));
+for(var i=0;i<arr.length;i++){
+type.push("1");
+}
+}
+if(dontstring.substring(0,dontstring.length-1)!=""){
+arr=arr.concat(dontstring.substring(0,dontstring.length-1).split(","));
+while(type.length!=arr.length){
+type.push("2");
+}
+}
+mintstring="";dontstring="";
+
+if(arr.length!=0){
+$("#tg tbody").remove();
+$("#combinationstable table").remove();
+$("#equations tbody").remove();
+if(document.getElementById("circuit")!=null){
+$("#circuit").detach();
+}
+if(document.getElementById("results")!=null){
+$("#results").detach();
+}
+
+if(type.indexOf("1")==-1){
+$("#textarea1").html($('#textarea1').val()+"\n"+"Y=0");
+}
+else{
+if(document.getElementById("results")==null){
+$("body").append(results);
+$("#results").css("display","block");
+}
+var binarr=[];
+for(var i=0;i<arr.length;i++){
+binarr.push(tobin(arr[i]));
+}
+
+var tmp=arr.slice();
+tmp = tmp.map(Number);
+var max=Math.max.apply(null,tmp)
+var lenofmax=binarr[arr.indexOf(max.toString())].length;
+var bool1=false;
+if(arr.length==Math.pow(2,lenofmax)){
+$("#textarea1").html($('#textarea1').val()+"\n"+"Y=1");
+bool1=true;
+}
+
+for(var i=0;i<binarr.length-1;i++){
+for(var j=i+1;j<binarr.length;j++){
+if(countones(binarr[i])>countones(binarr[j])||(countones(binarr[i])==countones(binarr[j])&&parseInt(arr[i])>parseInt(arr[j]))){
+var tmp=binarr[i];
+binarr[i]=binarr[j];
+binarr[j]=tmp;
+var tmp=arr[i];
+arr[i]=arr[j];
+arr[j]=tmp;
+var tmp=type[i];
+type[i]=type[j];
+type[j]=tmp;
+}
+}
+}
+
+var tmp=[],tmp2=[],tmp3=[];
+
+for(var i=0;i<binarr.length-1;i++){
+tmp.push(binarr[i]);
+tmp2.push(arr[i]);
+tmp3.push(type[i]);
+if(countones(binarr[i])!=countones(binarr[i+1])){
+tmp.push("border");
+tmp2.push("border");
+tmp3.push("border");
+}
+}
+tmp.push(binarr[binarr.length-1]);
+tmp2.push(arr[arr.length-1]);
+tmp3.push(type[type.length-1]);
+binarr=tmp.slice();
+arr=tmp2.slice();
+type=tmp3.slice();
+arr.push("border");
+binarr.push("border");
+type.push("border");
+
+for(var i=0;i<binarr.length;i++){
+if(binarr[i]!="border"){
+var addzeros="";
+for(var j=binarr[i].length;j<lenofmax;j++){
+addzeros+="0";
+}
+var el=binarr[i];
+binarr[i]=addzeros+el;
+}
+}
+
+
+var checkmarks=binarr.slice();
+for(var i=0;i<checkmarks.length;i++){
+if(checkmarks[i]!="border"){
+checkmarks[i]="false";
+}
+}
+var start1=0,start2=arr.indexOf("border")+1;
+var checkmarkhistory=[],decimalhistory=[],binarhistory=[];
+decimalhistory.push(arr);
+binarhistory.push(binarr);
+var iter=1;
+
+while(true){
+var next=[],nextbin=[],nextcheckmarks=[],nextbinarr=binarr.slice(),nextarr=arr.slice(),nextcheckmarksarr=checkmarks.slice();
+start1=0;
+start2=arr.indexOf("border")+1;
+
+
+
+while(true){
+
+var binarray1=nextbinarr.slice(0,nextbinarr.indexOf("border"));
+var decarray1=nextarr.slice(0,nextarr.indexOf("border"));
+
+nextbinarr=nextbinarr.slice(nextbinarr.indexOf("border")+1);
+nextarr=nextarr.slice(nextarr.indexOf("border")+1);
+nextcheckmarksarr=nextcheckmarksarr.slice(nextcheckmarksarr.indexOf("border")+1);
+if(nextbinarr.length<1){
+break;
+}
+
+var binarray2=nextbinarr.slice(0,nextbinarr.indexOf("border"));
+var decarray2=nextarr.slice(0,nextarr.indexOf("border"));
+
+
+
+for(var i=0,len=binarray1.length;i<len;i++){
+for(var j=0,len2=binarray2.length;j<len2;j++){
+var different=0;
+var newstring="";
+for(var k=0;k<binarray1[i].length;k++){
+if(binarray1[i].charAt(k)!==binarray2[j].charAt(k)){
+different++;
+newstring=binarray1[i];
+var tmp=newstring.split("");
+tmp[k]="-";
+newstring=tmp.join("");
+}
+}
+if(different==1){
+checkmarks[i+start1]="true";
+checkmarks[j+start2]="true";
+next.push(decarray1[i]+","+decarray2[j]);
+nextbin.push(newstring);
+nextcheckmarks.push("false");
+}
+}
+}
+if(next.length!=0){
+next.push("border")
+nextbin.push("border");
+nextcheckmarks.push("border");
+}
+start1=start2;
+start2=start2+nextbinarr.slice(0,nextbinarr.indexOf("border")).length+1;
+}
+
+if(iter==1){
+checkmarkhistory.push(checkmarks);
+}
+iter++;
+checkmarks=nextcheckmarks.slice();
+checkmarkhistory.push(checkmarks);
+decimalhistory.push(next);
+binarhistory.push(nextbin);
+
+
+for(var i=0;i<decimalhistory.length;i++){
+for(var j=0;j<decimalhistory[i].length-1;j++){
+for(var k=j+1;k<decimalhistory[i].length;k++){
+if(decimalhistory[i][j]!="border"&&decimalhistory[i][j]==decimalhistory[i][k].split(',').sort(function(a, b){return a - b;}).join(',')){
+decimalhistory[i].splice(k,1);
+binarhistory[i].splice(k,1);
+checkmarkhistory[i].splice(k,1);
+k--;
+}
+}
+}
+}
+
+arr=next.slice();
+binarr=nextbin.slice();
+if(next.length==0){
+break;
+}
+}
+
+var row=0,col=0,firstcol=[],firstrow=[];
+for(var i=0;i<decimalhistory[0].length;i++){
+if(decimalhistory[0][i]!="border"&&type[i]=="1"){
+firstrow.push(decimalhistory[0][i]);
+}
+}
+firstrow.sort(function(a, b){return a-b});
+
+for(var i=0;i<checkmarkhistory.length;i++){
+for(var j=0;j<checkmarkhistory[i].length;j++){
+if(checkmarkhistory[i][j]=="false"){
+firstcol.push(decimalhistory[i][j]);
+}
+}
+}
+for(var i=0;i<firstcol.length;i++){
+var toarr=firstcol[i].split(",").sort(function(a, b){return a-b});
+firstcol[i]=toarr.join();
+}
+var tmp=_.uniq(firstcol);
+firstcol=tmp;
+
+var table=[];
+
+for(var i=0;i<firstcol.length+1;i++){
+table.push(new Array(firstrow.length+1));
+}
+for(var i=1;i<table.length;i++){
+table[i][0]=firstcol[i-1];
+}
+for(var i=1;i<table[0].length;i++){
+table[0][i]=firstrow[i-1];
+}
+
+for(var i=1;i<table.length;i++){
+for(var j=1;j<table[i].length;j++){
+table[i][j]="";
+}}
+
+for(var i=1;i<table.length;i++){
+for(var j=0;j<table[i].length;j++){
+var toarr=table[i][0].split(",");
+for(var k=0;k<toarr.length;k++){
+var val=toarr[k];
+for(var l=1;l<table[0].length;l++){
+if(table[0][j]==val){
+table[i][j]="*";
+}
+}
+}
+} 
+}
+
+var ml1="20px;";
+var tabw="initial;";
+if(decimalhistory.length<6){
+var tabw=parseInt(50/(decimalhistory.length-1)).toString()+"%;";
+}
+for(var i=0;i<decimalhistory.length-1;i++){
+var myTableDiv = document.getElementById("combinationstable");
+var newtable = document.createElement('TABLE');
+var mrl="auto;";if(i>0){var mrl=ml1;}
+var mrr="0px;";
+if(i==decimalhistory.length-2){var mrr="auto;";}
+newtable.setAttribute("style","margin-left:"+mrl+"font-weight:bold;float:left;"+
+"margin-right:"+mrr+"box-shadow: 5px 5px 5px dimgrey;min-width:"+tabw);
+for(var j=0;j<decimalhistory[i].length-1;j++){
+if(j==0){
+var row = newtable.insertRow(newtable.rows.length);
+var cell = row.insertCell(0);
+cell.setAttribute("colspan","3");
+cell.setAttribute("align","right");
+cell.innerHTML = "Col"+(i+1).toString();
+}
+var row = newtable.insertRow(newtable.rows.length);
+if(decimalhistory[i][j]=="border"){
+if(j<decimalhistory[i].length-2){
+var cell = row.insertCell(0);
+cell.setAttribute("colspan","3");
+cell.style.height="10px";
+}
+}
+else{
+var cell1 = row.insertCell(0);
+var cell2 = row.insertCell(1);
+var cell3 = row.insertCell(2);
+
+cell1.innerHTML = decimalhistory[i][j];
+cell2.innerHTML = binarhistory[i][j];
+if(checkmarkhistory[i][j]=="true"){
+cell3.innerHTML = "✓";
+}
+else{
+cell3.innerHTML = "*";
+}
+
+cell1.setAttribute("align","left");
+cell1.setAttribute("style","white-space:nowrap");
+cell2.setAttribute("align","left");
+cell2.setAttribute("style","white-space:nowrap");
+cell3.setAttribute("align","left");
+}
+}
+myTableDiv.appendChild(newtable);
+}
+
+for(var i=0;i<table.length;i++){
+var target = document.getElementById("tg");
+var row=target.insertRow(target.rows.length);
+for(var j=0;j<table[i].length;j++){
+var cell = row.insertCell(j);
+if(i!=0||j!=0){
+cell.innerHTML=table[i][j];
+}
+if(j==0&&i!=0){
+cell.setAttribute("align","left");
+}}}
+
+var minterms=[];
+for(var i=1;i<table[0].length;i++){
+var count=0;
+for(var j=1;j<table.length;j++){
+if(table[j][i]=="*"){
+count++;
+var poz=j;
+}    
+}
+if(count==1){
+minterms.push(table[poz][0]);
+}
+}  
+
+
+var tmp=_.uniq(minterms);
+minterms=tmp;
+var unusedterms = firstcol.filter(function(x) {
+if(minterms.indexOf(x) == -1)
+return true;
+else
+return false;
+});
+var splitunusedminterms=unusedterms.join().split(",");
+var toset=_.uniq(unusedterms.join().split(","));
+var toset2=_.uniq(minterms.join().split(","));
+var toarr=toset;
+var toarr2=toset2;
+var unusednumbers=firstrow.filter(function(x) {
+if(toarr2.indexOf(x) == -1)
+return true;
+else
+return false;
+});
+var poz=-999,positions=[];
+
+if(unusedterms.length!=0){
+while(unusednumbers.length!=0){
+poz=-999;
+positions=[];
+var maks=0;
+var maxpoz=-99;
+for(var i=0;i<unusedterms.length;i++){
+var counter=0;
+for(var j=0;j<unusednumbers.length;j++){
+var splitelements=unusedterms[i].split(",");
+for(var k=0;k<splitelements.length;k++){
+if(unusednumbers[j]==splitelements[k]){//sa numra nga te pambuluarit jane=
+counter++;
+}
+}
+}
+if(counter>=maks){
+maks=counter;
+maxpoz=i;
+}
+}
+//positions.push(maxpoz);
+
+
+
+/*
+var maxlen=0;
+for(var i=0;i<positions.length;i++){
+if(unusedterms[positions[i]].length>maxlen){
+maxlen=unusedterms[positions[i]].length;
+poz=positions[i];
+}
+}*/
+var splitelements=unusedterms[maxpoz].split(",");
+newarr.push(unusedterms[maxpoz]);
+for(var i=0;i<splitelements.length;i++){
+unusednumbers=unusednumbers.filter(function(value, index, arr){
+
+return value!=splitelements[i];
+
+});
+}
+}
+}
+for(var i=0;i<minterms.length;i++){
+newarr.push(minterms[i]);
+}
+
+var str="";
+
+for(var i=0;i<newarr.length;i++){
+for(var j=0;j<decimalhistory.length;j++){
+for(var k=0;k<decimalhistory[j].length;k++){
+if(newarr[i]==decimalhistory[j][k]){
+for(var l=0;l<binarhistory[j][k].length;l++){
+if(binarhistory[j][k].charAt(l)=="1"){
+str+=letters[l];
+}
+else if(binarhistory[j][k].charAt(l)=="0"){
+str+=complement[l];
+}
+}
+str+="+";
+}
+}
+}
+}
+str=str.slice(0,-1);
+if(str==""){str="0";}
+if(!bool1){
+resarray=str.split("+");
+for(var i=0;i<newarr.length-1;i++){
+for(var j=i+1;j<newarr.length;j++){
+if(newarr[i].split(",").length<newarr[j].split(",").length){
+var tmp=newarr[i];
+newarr[i]=newarr[j];
+newarr[j]=tmp;
+var tmp=resarray[i];
+resarray[i]=resarray[j];
+resarray[j]=tmp;
+}
+}
+}
+$("#textarea1").html($("#textarea1").html()+"\n"+"Y="+resarray.join("+"));
+}
+if(resarray.length==0){resarray.push("");}
+for(var i=0;i<newarr.length;i++){
+var target = document.getElementById("equations");
+var row = target.insertRow(target.rows.length);
+for(var j=0;j<3;j++){
+var cell = row.insertCell(j);
+cell.setAttribute("align","left");
+if(j==0){
+cell.innerHTML=newarr[i];
+}
+else if(j==1){
+for(var k=0;k<decimalhistory.length;k++){
+for(var l=0;l<decimalhistory[k].length;l++){
+if(newarr[i]==decimalhistory[k][l]){
+cell.innerHTML=binarhistory[k][l];
+}
+}
+}
+}
+else{
+cell.innerHTML=resarray[i];
+}
+}
+}
+
+if($("#textarea1").html().indexOf("Y=1")==-1&&$("#textarea1").html().indexOf("Y=0")==-1){
+if(max<128){
+if(document.getElementById("circuit")==null){ 
+$("#results").append(circuit);
+}
+drawcircuit();
+}
+}
+}
+}
+});
+});
+</script>
+
+</head>
+
+
+<body style="line-height: 1 !important;overflow-x: hidden;touch-action: manipulation;background-color:#b3b3b3;color: black;width: 100vw;
+display: none;">
+<nav class="navbar navbar-expand navbar-light bg-light" id="nav" style="background: black !important;
+width:100vw;position: fixed;top:0;z-index: 99;">
+<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" 
+aria-expanded="false" aria-label="Toggle navigation" style="background: lightgrey;">
+<span class="navbar-toggler-icon"></span>
+</button>
+
+<div class="collapse navbar-collapse" id="navbarNavDropdown">
+<ul class="navbar-nav">
+<li class="nav-item active">
+<a class="nav-link" href="index.html">Home <span class="sr-only">(current)</span></a>
+</li>
+
+<li class="nav-item dropdown">
+<a class="nav-link dropdown-toggle" href="http://example.com" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" 
+aria-expanded="false">Numeral systems</a>
+<ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+<li><a class="dropdown-item" href="base.html">Number bases</a></li>
+<li><a class="dropdown-item" href="codes.html">Binary codes</a></li>
+</ul>
+</li>
+
+<li class="nav-item dropdown">
+<a class="nav-link dropdown-toggle" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" 
+aria-expanded="false">Combinational logic</a>
+<ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+<li class="dropdown-submenu"><a class="dropdown-item dropdown-toggle">Karnaugh map</a>
+<ul class="dropdown-menu">
+<li><a class="dropdown-item" href="4var.html">4 variables</a></li>
+<li><a class="dropdown-item" href="5var.html">5 variables</a></li>
+<li><a class="dropdown-item" href="6var.html">6 variables</a></li>
+</ul>
+</li>
+<li><a class="dropdown-item" href="McCluskey.html">Tabular method</a></li>
+</ul>
+</li>
+
+
+<li class="nav-item dropdown">
+<a class="nav-link dropdown-toggle" href="http://example.com" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" 
+aria-expanded="false">Boolean algebra</a>
+<ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+<li><a class="dropdown-item" href="booleanexpression.html">Boolean expressions</a></li>
+<li><a class="dropdown-item" href="expressioncheck.html">Compare functions</a></li>
+</ul>
+</li>
+
+</ul>
+</div>
+</nav>
+
+
+
+<div style="display:flex;justify-content:center;align-items:center;" id="main">
+<div id="mainsub" style="background: #f5f5f5;border-radius: 20px;width: 600px;height:420px;display: flex;justify-content: center;
+position: relative;margin-top: 100px;">
+<div id="mainsubsub" style="width:80%;height:100%;display:flex;flex-direction:column;justify-content: center;">
+
+<div id="message" style="position:absolute;top:2px;left:calc(50% - 30px);height:20px;background:lightgrey;width:60px;display: flex;
+justify-content:center;align-items:center;letter-spacing:2px;font-style:italic;font-weight:bold;box-shadow:3px 3px 3px dimgray;border-radius:3px;">
+</div>
+
+<div style="display:flex;align-items:flex-end;font-size:11px;font-family:Itim;font-weight:bold;margin-left:5px;
+letter-spacing: 1px;line-height:1.3;">E.g. "0,1,2,3..."
+</div>
+
+
+<input type="text" class="form-control" id="fusha" autocomplete="off" placeholder="Minterms" style="width:100%;height: 60px;
+letter-spacing: 1px;box-shadow: 3px 3px 10px dimgrey;font-weight: bold;border: 1px solid;">
+
+<div style="display: flex;">
+<button type="button" class="btn btn-secondary" id="shto" style="font-weight:bold;font-size:13px;background:black;">Minterm</button>
+<button type="button" class="btn btn-secondary" id="shto2" style="font-weight:bold;font-size:13px;background:black;margin-left:2px;">
+Don't care</button>
+</div>
+
+<textarea id="textarea1"  readonly  style="margin-top:40px;letter-spacing: 1px;font-size:18px;font-weight:bold;height:150px;
+background: black;color: white;width:100%;border-radius: 5px;box-shadow: 3px 5px 5px dimgrey;line-height: 1.5;
+font-family:Times New Roman;"></textarea>
+
+<div>
+<button  type="button" class="btn btn-secondary" id="thjeshto" style="font-weight:bold;font-size:13px;background:black;
+margin-top:20px;margin-left:0px;">Submit</button> 
+</div>
+</div>
+</div>
+</div>
+
+
+<div id="results" style="display: none;width:100vw;margin-top: 40px;margin-bottom: 20px;">
+
+<div id="combinations" style="display: flex;justify-content: center;">
+<div id="combinationssub" style="border-radius: 20px;width:700px;overflow-x:auto;background:#f5f5f5;text-align:center;">
+<div id="text3" style="display:inline-block;font-size: 18px;font-weight: bold;font-family: Itim;letter-spacing: 1px;
+box-shadow: 3px 3px 3px dimgrey;margin-top:2px;">Combinations table</div>
+<div id="combinationstable" style="display:flex;margin-top: 30px;margin-bottom: 30px;margin-left:5px;margin-right:5px;">
+
+</div>
+</div>
+</div>
+
+<div style="display: flex;justify-content: center;margin-top: 40px;">
+<div id="implicantssub" style="border-radius: 20px;width:700px;overflow-x:auto;background:#f5f5f5;text-align:center;">
+<div id="text3" style="display:inline-block;font-size: 18px;font-weight: bold;font-family: Itim;letter-spacing: 1px;
+box-shadow: 3px 3px 3px dimgrey;margin-top:2px;">Prime implicants</div>
+<div id="implicantstable" style="display: flex;justify-content:center;margin-top: 20px;margin-bottom: 30px;margin-left: 10px;margin-right: 10px;">
+<table class="tg" id="tg" style="text-align: center;width: 50%;box-shadow: 5px 5px 5px dimgrey;">
+</table>
+</div>
+</div>
+</div>
+
+
+<div style="display: flex;justify-content: center;margin-top:40px;margin-bottom:40px;">
+<div id="eimplicantssub" style="border-radius: 20px;width:700px;overflow-x:auto;background:#f5f5f5;text-align:center;">
+<div id="text3" style="display:inline-block;font-size: 18px;font-weight: bold;font-family: Itim;letter-spacing: 1px;
+box-shadow: 3px 3px 3px dimgrey;margin-top:2px;">Essential prime implicants</div>
+<div id="eimplicantstable" style="display: flex;justify-content:center;margin-top: 20px;margin-bottom: 30px;margin-left: 10px;margin-right: 10px;">
+<table id="equations" style="width: 50%;box-shadow: 5px 5px 5px dimgrey;"></table>
+</div>
+</div>
+</div>
+
+
+<div id="circuit" style="display: flex;justify-content: center;">
+<div id="canvaswrap" style="border-radius: 20px;width:700px;overflow-x:auto;background:#f5f5f5;text-align:center;">
+<div id="text3" style="display:inline-block;font-size: 18px;font-weight: bold;font-family: Itim;letter-spacing: 1px;
+box-shadow: 3px 3px 3px dimgrey;margin-top:2px;">Circuit</div>
+<canvas id="myCanvas" width="390" style="display: flex;margin-left:auto;margin-right:auto;margin-bottom: 30px;margin-top: 30px;">
+</canvas>
+</div>
+</div>
+</div>
+
+</body>
+</html>
