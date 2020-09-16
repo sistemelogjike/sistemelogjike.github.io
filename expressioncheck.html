@@ -135,9 +135,9 @@ $("button#konverto").click(function(){
 $("#message").detach();
 var bashkesia="ABCDEFGHIJKLMNOPQRSTUVXYZ+'()";
 var stop=false;	  
-var expression=$('#function1').val().toUpperCase();
-var expression1=$('#function1').val().toUpperCase();
-var expression2=$('#function2').val().toUpperCase();
+var expression=$('#function1').val().toUpperCase().replaceAll(" ","");
+var expression1=$('#function1').val().toUpperCase().replaceAll(" ","");
+var expression2=$('#function2').val().toUpperCase().replaceAll(" ","");
 var exp1tmp=expression1,exp2tmp=expression2;
 for(var iter=0;iter<2;iter++){
 if(iter==1){
